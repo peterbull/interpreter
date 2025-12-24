@@ -2,6 +2,70 @@
 use std::env;
 use std::fs;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TokenType {
+    LeftParen,
+    RightParen,
+    LeftBrace,
+    RightBrace,
+    Comma,
+    Dot,
+    Minus,
+    Plus,
+    Semicolon,
+    Slash,
+    Star,
+
+    // one or two character tokens.
+    Bang,
+    BangEqual,
+    Equal,
+    EqualEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
+
+    // literals.
+    Identifier,
+    String,
+    Number,
+
+    // keywords.
+    And,
+    Class,
+    Else,
+    False,
+    Fun,
+    For,
+    If,
+    Nil,
+    Or,
+    Print,
+    Return,
+    Super,
+    This,
+    True,
+    Var,
+    While,
+
+    Eof,
+}
+
+struct Scanner {}
+impl Scanner {
+    fn scan_tokens(text: &str) -> String {
+        String::from("testing")
+    }
+}
+
+struct Lox {}
+impl Lox {
+    fn run(text: &str) -> String {
+        Scanner::scan_tokens(text)
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -22,7 +86,9 @@ fn main() {
             });
 
             if !file_contents.is_empty() {
-                panic!("Scanner not implemented");
+                let res = Lox::run(&file_contents);
+                println!("my program: {}", res)
+                // panic!("Scanner not implemented");
             } else {
                 println!("EOF  null");
             }
@@ -30,5 +96,13 @@ fn main() {
         _ => {
             eprintln!("Unknown command: {}", command);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_output() {
+        assert_eq!(1, 1)
     }
 }
