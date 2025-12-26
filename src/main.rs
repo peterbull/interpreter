@@ -173,18 +173,21 @@ impl Scanner {
             '\n' => {
                 self.line += 1;
             }
-            '"' => {}
+            '"' => self.handle_string(),
             _ => {}
         }
     }
+
     fn handle_string(&mut self) {
         while self.peek() != '"' && !self.is_at_end() {
             if self.peek() == '\n' {
                 self.line += 1;
             }
             self.advance();
-            let str_val = self.source[self.start + 1..self.current - 1].to_string();
         }
+
+        let str_val = self.source[self.start + 1..self.current - 1].to_string();
+        self.add_token_with_literal(TokenType::String, Literal::String(str_val));
         // closing "
         self.advance();
     }
