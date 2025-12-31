@@ -1,12 +1,12 @@
 [package]
-name = "interpreter-rs"
+name = "interpreter"
 version = "0.1.0"
 authors = ["peter"]
 edition = "2024"
 rust-version = "1.91"
 
 [[bin]]
-name = "interpreter-rs"
+name = "interpreter"
 path = "src/main.rs"
 
 [lib]
