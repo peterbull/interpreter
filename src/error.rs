@@ -1,12 +1,14 @@
-use crate::{Token, TokenType};
+use crate::token::{Token, TokenType};
 
+#[derive(Debug)]
 pub enum LoxError {
     ParseError(String),
 }
+
 pub fn lox_error(line: usize, message: &str) -> LoxError {
     lox_report(line, "", message)
 }
-pub fn lox_error_at_line(token: Token, message: &str) -> LoxError {
+pub fn lox_error_at_line(token: &Token, message: &str) -> LoxError {
     let where_info = if token.token_type == TokenType::Eof {
         "at end"
     } else {

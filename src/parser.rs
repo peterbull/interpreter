@@ -1,6 +1,12 @@
 #![allow(unused_variables, dead_code)]
 
-use crate::{Literal, Token, TokenType, expr::Expr};
+use std::io::Write;
+
+use crate::{
+    Literal, Token, TokenType,
+    error::{LoxError, lox_error_at_line},
+    expr::Expr,
+};
 
 /*
   Extended Backus-Naur Form (ebnf)
@@ -46,7 +52,7 @@ impl Parser {
     }
 
     fn is_at_end(&self) -> bool {
-        self.current > self.tokens.len()
+        self.current >= self.tokens.len()
     }
 
     fn is_at_eof(&self) -> bool {
@@ -76,28 +82,28 @@ impl Parser {
         }
     }
 
-    pub fn expression(&mut self) -> Expr {
+    pub fn expression(&mut self) -> Result<Expr, LoxError> {
         self.equality()
     }
 
-    fn equality(&mut self) -> Expr {
-        let mut expr = self.comparison();
+    fn equality(&mut self) -> Result<Expr, LoxError> {
+        let mut expr = self.comparison()?;
         while self.match_type(&[TokenType::BangEqual, TokenType::EqualEqual]) {
             let operator = self
                 .previous()
                 .expect("token should exist after match")
                 .clone();
-            let right = self.comparison();
+            let right = self.comparison()?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 operator,
                 right: Box::new(right),
             }
         }
-        expr
+        Ok(expr)
     }
-    fn comparison(&mut self) -> Expr {
-        let mut expr = self.term();
+    fn comparison(&mut self) -> Result<Expr, LoxError> {
+        let mut expr = self.term()?;
         while self.match_type(&[
             TokenType::Less,
             TokenType::LessEqual,
@@ -108,96 +114,111 @@ impl Parser {
                 .previous()
                 .expect("token should exist after match")
                 .clone();
-            let right = self.term();
+            let right = self.term()?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 operator,
                 right: Box::new(right),
             }
         }
-        expr
+        Ok(expr)
     }
-    fn term(&mut self) -> Expr {
-        let mut expr = self.factor();
+    fn term(&mut self) -> Result<Expr, LoxError> {
+        let mut expr = self.factor()?;
         while self.match_type(&[TokenType::Plus, TokenType::Minus]) {
             let operator = self
                 .previous()
                 .expect("token should exist after match")
                 .clone();
-            let right = self.factor();
+            let right = self.factor()?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 operator,
                 right: Box::new(right),
             }
         }
-        expr
+        Ok(expr)
     }
 
-    fn factor(&mut self) -> Expr {
-        let mut expr = self.unary();
+    fn factor(&mut self) -> Result<Expr, LoxError> {
+        let mut expr = self.unary()?;
         while self.match_type(&[TokenType::Slash, TokenType::Star]) {
             let operator = self
                 .previous()
                 .expect("token should exist after match")
                 .clone();
-            let right = self.factor();
+            let right = self.factor()?;
             expr = Expr::Binary {
                 left: Box::new(expr),
                 operator,
                 right: Box::new(right),
             }
         }
-        expr
+        Ok(expr)
     }
-    fn unary(&mut self) -> Expr {
+
+    fn unary(&mut self) -> Result<Expr, LoxError> {
         if self.match_type(&[TokenType::Bang, TokenType::Minus]) {
             let operator = self
                 .previous()
                 .expect("token should exist after match")
                 .clone();
-            let right = self.unary();
-            return Expr::Unary {
+            let right = self.unary()?;
+            return Ok(Expr::Unary {
                 operator,
                 right: Box::new(right),
-            };
+            });
         }
         self.primary()
     }
-    fn primary(&mut self) -> Expr {
+
+    fn consume(&mut self, token_type: TokenType, message: &str) -> Result<&Token, LoxError> {
+        if self.check(&token_type) {
+            Ok(self.advance().expect("should be tokens in consume"))
+        } else {
+            Err(lox_error_at_line(
+                self.peek().expect("should be token here"),
+                message,
+            ))
+        }
+    }
+
+    fn primary(&mut self) -> Result<Expr, LoxError> {
         if self.match_type(&[TokenType::False]) {
-            return Expr::Literal {
+            return Ok(Expr::Literal {
                 value: Literal::Boolean(false),
-            };
+            });
         }
         if self.match_type(&[TokenType::True]) {
-            return Expr::Literal {
+            return Ok(Expr::Literal {
                 value: Literal::Boolean(true),
-            };
+            });
         }
         if self.match_type(&[TokenType::Nil]) {
-            return Expr::Literal {
+            return Ok(Expr::Literal {
                 value: Literal::Nil,
-            };
+            });
         }
         if self.match_type(&[TokenType::Number, TokenType::String]) {
             let token = self.previous().expect("should be tokens here").clone();
             let literal_value = token.literal.expect("should be literal here");
 
-            return Expr::Literal {
+            return Ok(Expr::Literal {
                 value: literal_value,
-            };
+            });
         }
         if self.match_type(&[TokenType::LeftParen]) {
-            let expr = self.expression();
-            if self.match_type(&[TokenType::RightParen]) {
-                return Expr::Grouping {
-                    expression: Box::new(expr),
-                };
-            } else {
-                panic!("Expected ')' after opening paren")
-            };
-        }
-        panic!("Expected primary expression")
+            let expr = self.expression()?;
+
+            self.consume(
+                TokenType::RightParen,
+                "there should be a ')' following a '('",
+            )?;
+        };
+
+        Err(lox_error_at_line(
+            &self.tokens[self.current],
+            "expected primary expression",
+        ))
     }
 }

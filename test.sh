@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cargo build
-RUST_BACKTRACE=1 ./target/debug/interpreter-rs tokenize ./lox/hello.lox
+RUST_BACKTRACE=FULL ./target/debug/interpreter tokenize ./lox/hello.lox

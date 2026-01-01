@@ -14,6 +14,7 @@ impl Lox {
         let tokens = scanner.scan_tokens();
         scanner.print_info();
         let mut parser = Parser::new(tokens);
+
         let expression = parser.expression();
         println!("expression: {:#?}", expression);
     }
