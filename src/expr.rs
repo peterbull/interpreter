@@ -2,40 +2,40 @@
 use crate::{Literal, Token};
 
 #[derive(Debug)]
-pub enum Expr {
+pub enum ExprKind {
     Assign {
         name: Token,
-        value: Box<Expr>,
+        value: Box<ExprKind>,
     },
     Binary {
-        left: Box<Expr>,
+        left: Box<ExprKind>,
         operator: Token,
-        right: Box<Expr>,
+        right: Box<ExprKind>,
     },
     Call {
-        callee: Box<Expr>,
+        callee: Box<ExprKind>,
         token: Token,
-        arguments: Vec<Expr>,
+        arguments: Vec<ExprKind>,
     },
     Get {
-        object: Box<Expr>,
+        object: Box<ExprKind>,
         name: Token,
     },
     Grouping {
-        expression: Box<Expr>,
+        expression: Box<ExprKind>,
     },
     Literal {
         value: Literal,
     },
     Logical {
-        left: Box<Expr>,
+        left: Box<ExprKind>,
         operator: Token,
-        right: Box<Expr>,
+        right: Box<ExprKind>,
     },
     Set {
-        object: Box<Expr>,
+        object: Box<ExprKind>,
         name: Token,
-        value: Box<Expr>,
+        value: Box<ExprKind>,
     },
     Super {
         keyword: Token,
@@ -46,42 +46,46 @@ pub enum Expr {
     },
     Unary {
         operator: Token,
-        right: Box<Expr>,
+        right: Box<ExprKind>,
     },
     Variable {
         name: Token,
     },
 }
 
-pub fn evaluate(expr: &Expr) {
-    match expr {
-        Expr::Assign { name, value } => {}
-        Expr::Binary {
-            left,
-            operator,
-            right,
-        } => {}
-        Expr::Call {
-            callee,
-            token,
-            arguments,
-        } => {}
-        Expr::Get { object, name } => {}
-        Expr::Grouping { expression } => {}
-        Expr::Literal { value } => {}
-        Expr::Logical {
-            left,
-            operator,
-            right,
-        } => {}
-        Expr::Set {
-            object,
-            name,
-            value,
-        } => {}
-        Expr::Super { keyword, method } => {}
-        Expr::This { keyword } => {}
-        Expr::Unary { operator, right } => {}
-        Expr::Variable { name } => {}
+#[derive(Debug)]
+pub struct Expr {}
+impl Expr {
+    pub fn evaluate(data: &ExprKind) {
+        match data {
+            ExprKind::Assign { name, value } => {}
+            ExprKind::Binary {
+                left,
+                operator,
+                right,
+            } => {}
+            ExprKind::Call {
+                callee,
+                token,
+                arguments,
+            } => {}
+            ExprKind::Get { object, name } => {}
+            ExprKind::Grouping { expression } => {}
+            ExprKind::Literal { value } => {}
+            ExprKind::Logical {
+                left,
+                operator,
+                right,
+            } => {}
+            ExprKind::Set {
+                object,
+                name,
+                value,
+            } => {}
+            ExprKind::Super { keyword, method } => {}
+            ExprKind::This { keyword } => {}
+            ExprKind::Unary { operator, right } => {}
+            ExprKind::Variable { name } => {}
+        }
     }
 }

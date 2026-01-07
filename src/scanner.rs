@@ -66,7 +66,6 @@ impl Scanner {
     }
 
     fn handle_token(&mut self, c: &char) {
-        println!("handling c: {}", c);
         match c {
             '+' => self.add_token(TokenType::Plus),
             '-' => self.add_token(TokenType::Minus),
