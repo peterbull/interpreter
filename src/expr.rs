@@ -1,6 +1,6 @@
 #![allow(unused_variables, dead_code)]
 
-use crate::{Literal, Token, TokenType, error::LoxError};
+use crate::{Literal, Token, TokenType, error::ReefError};
 
 #[derive(Debug)]
 pub enum Value {
@@ -11,28 +11,28 @@ pub enum Value {
     // funcs etc to be added
 }
 impl Value {
-    pub fn as_number(&self) -> Result<f64, LoxError> {
+    pub fn as_number(&self) -> Result<f64, ReefError> {
         match self {
             Value::Number(n) => Ok(*n),
-            _ => Err(LoxError::lox_general_error(&format!(
+            _ => Err(ReefError::reef_general_error(&format!(
                 "Expected number, got {:?}",
                 self
             ))),
         }
     }
-    pub fn as_string(&self) -> Result<&str, LoxError> {
+    pub fn as_string(&self) -> Result<&str, ReefError> {
         match self {
             Value::String(s) => Ok(s),
-            _ => Err(LoxError::lox_general_error(&format!(
+            _ => Err(ReefError::reef_general_error(&format!(
                 "Expected string, got {:?}",
                 self
             ))),
         }
     }
-    pub fn as_boolean(&self) -> Result<bool, LoxError> {
+    pub fn as_boolean(&self) -> Result<bool, ReefError> {
         match self {
             Value::Boolean(b) => Ok(*b),
-            _ => Err(LoxError::lox_general_error(&format!(
+            _ => Err(ReefError::reef_general_error(&format!(
                 "Expected boolean, got {:?}",
                 self
             ))),
@@ -109,10 +109,10 @@ impl Expr {
         &self,
         operator: &Token,
         right_operand: &Value,
-    ) -> Result<(), LoxError> {
+    ) -> Result<(), ReefError> {
         match right_operand {
             Value::Number(_) => Ok(()),
-            _ => Err(LoxError::lox_runtime_error(
+            _ => Err(ReefError::reef_runtime_error(
                 operator,
                 "operand must be a number",
             )),
@@ -123,10 +123,10 @@ impl Expr {
         operator: &Token,
         left_operand: &Value,
         right_operand: &Value,
-    ) -> Result<(), LoxError> {
+    ) -> Result<(), ReefError> {
         match (left_operand, right_operand) {
             (Value::Number(_), Value::Number(_)) => Ok(()),
-            _ => Err(LoxError::lox_runtime_error(
+            _ => Err(ReefError::reef_runtime_error(
                 operator,
                 "operands must be a number",
             )),
@@ -144,7 +144,7 @@ impl Expr {
         }
     }
 
-    pub fn evaluate(&self, data: &ExprKind) -> Result<Value, LoxError> {
+    pub fn evaluate(&self, data: &ExprKind) -> Result<Value, ReefError> {
         match data {
             // ExprKind::Assign { name, value } => {}
             ExprKind::Binary {
@@ -165,7 +165,7 @@ impl Expr {
                             Ok(Value::String(concat_result))
                         }
 
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
@@ -175,7 +175,7 @@ impl Expr {
                             let subtraction_result = l - r;
                             Ok(Value::Number(subtraction_result))
                         }
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
@@ -185,7 +185,7 @@ impl Expr {
                             let multiplication_result = l * r;
                             Ok(Value::Number(multiplication_result))
                         }
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
@@ -195,7 +195,7 @@ impl Expr {
                             let division_result = l / r;
                             Ok(Value::Number(division_result))
                         }
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
@@ -209,33 +209,33 @@ impl Expr {
                     }
                     TokenType::GreaterEqual => match (&left_val, &right_val) {
                         (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l >= r)),
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
                     },
                     TokenType::Greater => match (&left_val, &right_val) {
                         (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l > r)),
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
                     },
                     TokenType::LessEqual => match (&left_val, &right_val) {
                         (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l <= r)),
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
                     },
                     TokenType::Less => match (&left_val, &right_val) {
                         (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l < r)),
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Binary evaluation error",
                         )),
                     },
-                    _ => Err(LoxError::lox_runtime_error(
+                    _ => Err(ReefError::reef_runtime_error(
                         operator,
                         "Binary evaluation error",
                     )),
@@ -271,13 +271,13 @@ impl Expr {
                 match operator.token_type {
                     TokenType::Minus => match right_val {
                         Value::Number(right_val) => Ok(Value::Number(-right_val)),
-                        _ => Err(LoxError::lox_runtime_error(
+                        _ => Err(ReefError::reef_runtime_error(
                             operator,
                             "Operand must be a number",
                         )),
                     },
                     TokenType::Bang => Ok(Value::Boolean(!right_val.is_truthy())),
-                    _ => Err(LoxError::lox_runtime_error(
+                    _ => Err(ReefError::reef_runtime_error(
                         operator,
                         "invalid unary operator",
                     )),

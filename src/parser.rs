@@ -1,6 +1,6 @@
 #![allow(unused_variables, dead_code)]
 
-use crate::{Literal, Token, TokenType, error::LoxError, expr::ExprKind};
+use crate::{Literal, Token, TokenType, error::ReefError, expr::ExprKind};
 
 /*
   Extended Backus-Naur Form (ebnf)
@@ -75,7 +75,7 @@ impl Parser {
                 == token_type
         }
     }
-    pub fn parse(&mut self) -> Vec<Result<ExprKind, LoxError>> {
+    pub fn parse(&mut self) -> Vec<Result<ExprKind, ReefError>> {
         let mut results = Vec::new();
         while !self.is_at_eof() {
             let expr = self.expression();
@@ -99,11 +99,11 @@ impl Parser {
         }
         results
     }
-    pub fn expression(&mut self) -> Result<ExprKind, LoxError> {
+    pub fn expression(&mut self) -> Result<ExprKind, ReefError> {
         self.equality()
     }
 
-    fn equality(&mut self) -> Result<ExprKind, LoxError> {
+    fn equality(&mut self) -> Result<ExprKind, ReefError> {
         let mut expr = self.comparison()?;
         while self.match_type(&[TokenType::BangEqual, TokenType::EqualEqual]) {
             let operator = self
@@ -119,7 +119,7 @@ impl Parser {
         }
         Ok(expr)
     }
-    fn comparison(&mut self) -> Result<ExprKind, LoxError> {
+    fn comparison(&mut self) -> Result<ExprKind, ReefError> {
         let mut expr = self.term()?;
         while self.match_type(&[
             TokenType::Less,
@@ -140,7 +140,7 @@ impl Parser {
         }
         Ok(expr)
     }
-    fn term(&mut self) -> Result<ExprKind, LoxError> {
+    fn term(&mut self) -> Result<ExprKind, ReefError> {
         let mut expr = self.factor()?;
         while self.match_type(&[TokenType::Plus, TokenType::Minus]) {
             let operator = self
@@ -157,7 +157,7 @@ impl Parser {
         Ok(expr)
     }
 
-    fn factor(&mut self) -> Result<ExprKind, LoxError> {
+    fn factor(&mut self) -> Result<ExprKind, ReefError> {
         let mut expr = self.unary()?;
         while self.match_type(&[TokenType::Slash, TokenType::Star]) {
             let operator = self
@@ -174,7 +174,7 @@ impl Parser {
         Ok(expr)
     }
 
-    fn unary(&mut self) -> Result<ExprKind, LoxError> {
+    fn unary(&mut self) -> Result<ExprKind, ReefError> {
         if self.match_type(&[TokenType::Bang, TokenType::Minus]) {
             let operator = self
                 .previous()
@@ -189,11 +189,11 @@ impl Parser {
         self.primary()
     }
 
-    fn consume(&mut self, token_type: TokenType, message: &str) -> Result<&Token, LoxError> {
+    fn consume(&mut self, token_type: TokenType, message: &str) -> Result<&Token, ReefError> {
         if self.check(&token_type) {
             Ok(self.advance().expect("should be tokens in consume"))
         } else {
-            Err(LoxError::lox_error_at_line(
+            Err(ReefError::reef_error_at_line(
                 self.peek().expect("should be token here"),
                 message,
             ))
@@ -228,7 +228,7 @@ impl Parser {
         }
     }
 
-    fn primary(&mut self) -> Result<ExprKind, LoxError> {
+    fn primary(&mut self) -> Result<ExprKind, ReefError> {
         if self.match_type(&[TokenType::False]) {
             return Ok(ExprKind::Literal {
                 value: Literal::Boolean(false),
@@ -267,7 +267,7 @@ impl Parser {
         //     TokenType::Semicolon,
         //     "expected semicolon at end of statement",
         // )?;
-        Err(LoxError::lox_error_at_line(
+        Err(ReefError::reef_error_at_line(
             &self.tokens[self.current],
             "expected primary expression",
         ))

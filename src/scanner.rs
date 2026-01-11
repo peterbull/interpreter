@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    error::LoxError,
+    error::ReefError,
     token::{Literal, Token, TokenType},
 };
 
@@ -123,7 +123,7 @@ impl Scanner {
                 } else if self.is_alpha(c) {
                     self.identifier();
                 } else {
-                    LoxError::lox_error(self.line, "unexpected character");
+                    ReefError::reef_error(self.line, "unexpected character");
                 }
             }
         }
@@ -179,7 +179,7 @@ impl Scanner {
         }
 
         if self.is_at_end() {
-            LoxError::lox_error(self.line, "Unterminated string.");
+            ReefError::reef_error(self.line, "Unterminated string.");
             return;
         }
 

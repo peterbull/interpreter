@@ -1,17 +1,17 @@
 use std::io::{self, Write};
 
-use crate::error::LoxError;
+use crate::error::ReefError;
 use crate::interpreter::Interpreter;
 use crate::parser::Parser;
 use crate::scanner::Scanner;
 
-pub struct Lox {
+pub struct Reef {
     had_error: bool,
     had_runtime_error: bool,
 }
-impl Lox {
+impl Reef {
     pub fn new() -> Self {
-        Lox {
+        Reef {
             had_error: false,
             had_runtime_error: false,
         }
@@ -25,15 +25,22 @@ impl Lox {
 
         let expressions = parser.parse();
         println!("expressions: {:#?}", expressions);
+        let interpreter = Interpreter::new();
         for expression in expressions {
             let expr_val = match expression {
-                Ok(expr) => Interpreter::interpret(&expr),
+                Ok(expr) => interpreter.interpret(&expr),
                 Err(e) => Err(e),
             };
             match expr_val {
                 Ok(_) => {}
                 Err(e) => self.report_error(&e),
             }
+        }
+        if self.had_error {
+            std::process::exit(65)
+        }
+        if self.had_runtime_error {
+            std::process::exit(70)
         }
     }
     pub fn run_repl(&mut self) -> io::Result<()> {
@@ -50,11 +57,11 @@ impl Lox {
         }
         Ok(())
     }
-    fn report_error(&mut self, error: &LoxError) {
+    fn report_error(&mut self, error: &ReefError) {
         eprintln!("{:?}", error);
         match error {
-            LoxError::ParseError { .. } => self.had_error = true,
-            LoxError::RuntimeError { .. } => self.had_runtime_error = true,
+            ReefError::ParseError { .. } => self.had_error = true,
+            ReefError::RuntimeError { .. } => self.had_runtime_error = true,
         }
     }
 }

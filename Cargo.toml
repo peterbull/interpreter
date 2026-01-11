@@ -15,7 +15,7 @@ name = "scratch"
 path = "src/scratch.rs"
 
 [lib]
-name = "lox_interpreter"
+name = "reef_interpreter"
 path = "src/lib.rs"
 
 [dependencies]

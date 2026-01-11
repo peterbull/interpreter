@@ -1,1 +1,3 @@
-following along while reading [Crafting Interpreters](https://craftinginterpreters.com)
+# Reef
+-- in progress --
+a simple dynamic scripting language

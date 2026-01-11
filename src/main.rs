@@ -2,13 +2,13 @@
 use std::env;
 use std::fs;
 
-use lox_interpreter::lox::Lox;
+use reef_interpreter::reef::Reef;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     let command = &args[1];
-    let mut lox = Lox::new();
+    let mut reef = Reef::new();
     match command.as_str() {
         "tokenize" => {
             let filename = &args[2];
@@ -18,14 +18,14 @@ fn main() {
             });
 
             if !file_contents.is_empty() {
-                lox.run(&file_contents);
+                reef.run(&file_contents);
                 // panic!("Scanner not implemented");
             } else {
                 println!("EOF  null");
             }
         }
         "repl" => {
-            let _ = lox.run_repl();
+            let _ = reef.run_repl();
         }
         _ => {
             eprintln!("Unknown command: {}", command);

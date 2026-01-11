@@ -1,36 +1,36 @@
 use crate::token::{Token, TokenType};
 
 #[derive(Debug)]
-pub enum LoxError {
+pub enum ReefError {
     ParseError(String),
     RuntimeError(String),
 }
-impl LoxError {
-    pub fn lox_error(line: usize, message: &str) -> LoxError {
-        LoxError::lox_report(line, "", message)
+impl ReefError {
+    pub fn reef_error(line: usize, message: &str) -> ReefError {
+        ReefError::reef_report(line, "", message)
     }
-    pub fn lox_general_error(message: &str) -> LoxError {
+    pub fn reef_general_error(message: &str) -> ReefError {
         eprintln!("Error: {}", message);
-        LoxError::ParseError(format!("Error: {}", message))
+        ReefError::ParseError(format!("Error: {}", message))
     }
-    pub fn lox_error_at_line(token: &Token, message: &str) -> LoxError {
+    pub fn reef_error_at_line(token: &Token, message: &str) -> ReefError {
         let where_info = if token.token_type == TokenType::Eof {
             "at end"
         } else {
             &format!("at '{}'", token.lexeme)
         };
-        LoxError::lox_report(token.line, where_info, message)
+        ReefError::reef_report(token.line, where_info, message)
     }
 
-    pub fn lox_report(line: usize, where_info: &str, message: &str) -> LoxError {
+    pub fn reef_report(line: usize, where_info: &str, message: &str) -> ReefError {
         eprintln!("[line {}] Error {}: {}", line, where_info, message);
-        LoxError::ParseError(format!("[line {}] Error {}: {}", line, where_info, message))
+        ReefError::ParseError(format!("[line {}] Error {}: {}", line, where_info, message))
     }
 
-    pub fn lox_runtime_error(token: &Token, message: &str) -> LoxError {
+    pub fn reef_runtime_error(token: &Token, message: &str) -> ReefError {
         eprintln!("Error {:?}: {}", token, message);
-        LoxError::RuntimeError(format!("Error {:?}: {}", token, message))
+        ReefError::RuntimeError(format!("Error {:?}: {}", token, message))
     }
 }
 
-// TODO: track runtime errors in main Lox struct
+// TODO: track runtime errors in main Reef struct
