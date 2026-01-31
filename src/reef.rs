@@ -17,7 +17,8 @@ pub struct Reef {
   program       -> statement* EOF ;
   declaration   -> var_decl | statement ;
   var_decl      -> "var" IDENTIFIER ("=" expression)? ";" ;
-  statement     -> epxr_stmt | print_stmt ;
+  statement     -> epxr_stmt | print_stmt | block ;
+  block         -> "{" declaration* "}"
   expr_stmt     -> expression ";"
   print_stmt    -> "print" expression ";"
   expression    -> assignment;

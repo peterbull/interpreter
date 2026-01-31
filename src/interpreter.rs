@@ -212,25 +212,47 @@ impl Interpreter {
             _ => todo!(),
         }
     }
+
+    fn execute_expression(&mut self, expr: &ExprKind) -> Result<Value, ReefError> {
+        self.evaluate(expr)
+    }
+
+    fn execute_print(&mut self, expr: &ExprKind) -> Result<Value, ReefError> {
+        let value = self.evaluate(expr)?;
+        println!("{}", self.stringify(&value));
+        Ok(value)
+    }
+
+    fn execute_var(&mut self, name: &Token, initializer: &ExprKind) -> Result<Value, ReefError> {
+        let mut value = Value::Nil;
+        match initializer {
+            ExprKind::None => {}
+            _ => {
+                value = self.evaluate(initializer)?;
+            }
+        }
+        self.environment
+            .define(name.lexeme.clone(), value.clone())?;
+        Ok(value)
+    }
+    fn execute_block(
+        &mut self,
+        statements: &Vec<StmtKind>,
+        environment: &Environment,
+    ) -> Result<Value, ReefError> {
+        let previous = &self.environment;
+        todo!()
+    }
+
     pub fn execute(&mut self, stmt: &StmtKind) -> Result<(), ReefError> {
         match stmt {
-            StmtKind::Expression { expr } => self.evaluate(expr)?,
-            StmtKind::Print { expr } => {
-                let value = self.evaluate(expr)?;
-                println!("{}", self.stringify(&value));
-                value
-            }
-            StmtKind::Var { name, initializer } => {
-                let mut value = Value::Nil;
-                match initializer {
-                    ExprKind::None => {}
-                    _ => {
-                        value = self.evaluate(initializer)?;
-                    }
-                }
-                self.environment.define(name.lexeme.clone(), value.clone());
-                value
-            }
+            StmtKind::Expression { expr } => self.execute_expression(expr)?,
+            StmtKind::Print { expr } => self.execute_print(expr)?,
+            StmtKind::Var { name, initializer } => self.execute_var(name, initializer)?,
+            StmtKind::Block {
+                statements,
+                environment,
+            } => self.execute_block(statements, environment)?,
             _ => todo!(),
         };
         Ok(())

@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{Token, error::ReefError, expr::Value};
 
+#[derive(Debug, Clone)]
 pub struct Environment {
     values: HashMap<String, Value>,
     enclosing: Option<Box<Environment>>,
